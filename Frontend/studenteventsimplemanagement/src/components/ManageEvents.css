@@ -1,0 +1,174 @@
+.manage-events-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.manage-events-main {
+  flex: 1;
+  padding: 40px;
+}
+
+.manage-events-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.search-container {
+  position: relative;
+  max-width: 400px;
+  margin-bottom: 24px;
+}
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.events-table thead {
+  background-color: #f1f3f4;
+}
+
+.events-table th {
+  padding: 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5f6368;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.events-table tbody tr {
+  border-bottom: 1px solid #e8eaed;
+  transition: background-color 0.2s;
+}
+
+.events-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.events-table td {
+  padding: 16px;
+  font-size: 14px;
+  color: #202124;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.action-btn {
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-btn {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.edit-btn:hover {
+  background-color: #ffe0b2;
+}
+
+.delete-btn {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.delete-btn:hover {
+  background-color: #ffcdd2;
+}
+
+.status-btn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.approve-btn {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.approve-btn:hover:not(:disabled) {
+  background-color: #c8e6c9;
+}
+
+.approve-btn.active {
+  background-color: #4caf50;
+  color: white;
+  cursor: default;
+}
+
+.reject-btn {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.reject-btn:hover:not(:disabled) {
+  background-color: #ffcdd2;
+}
+
+.reject-btn.active {
+  background-color: #f44336;
+  color: white;
+  cursor: default;
+}
+
+.status-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.no-events {
+  padding: 40px;
+  text-align: center;
+  color: #5f6368;
+  font-size: 16px;
+}
+
+@media (max-width: 1024px) {
+  .events-table {
+    font-size: 13px;
+  }
+
+  .action-buttons {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .manage-events-main {
+    padding: 20px;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .events-table {
+    min-width: 800px;
+  }
+}

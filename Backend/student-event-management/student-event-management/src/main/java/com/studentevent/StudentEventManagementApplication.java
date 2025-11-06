@@ -5,9 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class StudentEventManagementApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(StudentEventManagementApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(StudentEventManagementApplication.class, args);
+    }
 }

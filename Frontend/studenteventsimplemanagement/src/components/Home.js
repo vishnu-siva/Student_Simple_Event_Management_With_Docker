@@ -6,19 +6,30 @@ import './Home.css';
 
 function Home() {
   const navigate = useNavigate();
-  const [events, setEvents] = useState([]);
+  const [recentEvents, setRecentEvents] = useState([]);
+  const [approvedEvents, setApprovedEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    fetchRecentEvents();
     fetchApprovedEvents();
   }, []);
+
+  const fetchRecentEvents = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/events/recent');
+      setRecentEvents(response.data);
+    } catch (error) {
+      console.error('Error fetching recent events:', error);
+    }
+  };
 
   const fetchApprovedEvents = async () => {
     try {
       const response = await axios.get('http://localhost:8080/api/events/approved');
-      setEvents(response.data);
+      setApprovedEvents(response.data);
     } catch (error) {
-      console.error('Error fetching events:', error);
+      console.error('Error fetching approved events:', error);
     }
   };
 
@@ -27,14 +38,21 @@ function Home() {
     setSearchTerm(value);
     
     if (value.trim() === '') {
-      fetchApprovedEvents();
+      fetchRecentEvents();
     } else {
       try {
         const response = await axios.get(`http://localhost:8080/api/events/search?keyword=${value}`);
-        setEvents(response.data.filter(event => event.status === 'APPROVED'));
+        setRecentEvents(response.data);
       } catch (error) {
         console.error('Error searching events:', error);
       }
+    }
+  };
+
+  const scrollToApprovedEvents = () => {
+    const approvedSection = document.getElementById('approved-events-section');
+    if (approvedSection) {
+      approvedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -54,18 +72,42 @@ function Home() {
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
+  const getEventIcon = (title) => {
+    if (title.toLowerCase().includes('cultural')) {
+      return <FiCalendar size={24} color="#4285f4" />;
+    } else if (title.toLowerCase().includes('hackathon') || title.toLowerCase().includes('tech')) {
+      return <span style={{ fontSize: '24px' }}>💻</span>;
+    } else if (title.toLowerCase().includes('sports')) {
+      return <span style={{ fontSize: '24px' }}>⚽</span>;
+    } else if (title.toLowerCase().includes('music')) {
+      return <span style={{ fontSize: '24px' }}>🎵</span>;
+    } else {
+      return <FiCalendar size={24} color="#4285f4" />;
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    if (status === 'APPROVED') {
+      return <span className="status-badge approved">Approved</span>;
+    } else if (status === 'PENDING') {
+      return <span className="status-badge pending">Pending</span>;
+    }
+    return null;
+  };
+
   return (
     <div className="home-container">
       <header className="home-header">
         <div className="header-content">
           <h1 className="logo">Student Event Management System</h1>
-          <nav className="nav-menu">
-            <a href="/">Home</a>
-            <a href="#about">About</a>
-            <button onClick={() => navigate('/admin-login')} className="admin-login-btn">
-              Admin Login
-            </button>
-          </nav>
+            <nav className="nav-menu">
+              <a href="/">Home</a>
+              <a href="/about">About</a>
+              <button onClick={() => navigate('/admin-login')} className="admin-login-btn">
+                 Admin Login
+              </button>
+            </nav>
+
         </div>
       </header>
 
@@ -73,12 +115,13 @@ function Home() {
         <div className="hero-content">
           <h2 className="hero-title">Explore campus events in one place!</h2>
           <p className="hero-subtitle">Stay up-to-date with the latest happenings on campus.</p>
-          <button onClick={() => window.scrollTo({ top: 600, behavior: 'smooth' })} className="cta-button">
+          <button onClick={scrollToApprovedEvents} className="cta-button">
             View Approved Events
           </button>
         </div>
       </section>
 
+      {/* Recent Events Section - Shows All (Approved + Pending) */}
       <section className="events-section">
         <div className="events-container">
           <div className="section-header">
@@ -96,17 +139,51 @@ function Home() {
           </div>
 
           <div className="events-grid">
-            {events.length > 0 ? (
-              events.slice(0, 6).map((event) => (
+            {recentEvents.length > 0 ? (
+              recentEvents.map((event) => (
                 <div key={event.id} className="event-card">
-                  <div className="event-icon">
-                    {event.title.includes('Cultural') ? (
-                      <FiCalendar size={24} color="#4285f4" />
-                    ) : event.title.includes('Hackathon') ? (
-                      <span style={{ fontSize: '24px' }}>💻</span>
-                    ) : (
-                      <span style={{ fontSize: '24px' }}>⚽</span>
-                    )}
+                  <div className="event-header">
+                    <div className="event-icon">
+                      {getEventIcon(event.title)}
+                    </div>
+                    {getStatusBadge(event.status)}
+                  </div>
+                  <h3 className="event-title">{event.title}</h3>
+                  <div className="event-details">
+                    <div className="event-detail">
+                      <FiMapPin size={16} />
+                      <span>{event.location}</span>
+                    </div>
+                    <div className="event-detail">
+                      <FiClock size={16} />
+                      <span>{formatDate(event.date)} – {formatTime(event.time)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="no-events">No recent events available at the moment.</p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Approved Events Section - Shows Only Approved */}
+      <section id="approved-events-section" className="approved-events-section">
+        <div className="events-container">
+          <div className="section-header">
+            <h2>Approved Events</h2>
+          </div>
+
+          <div className="events-grid">
+            {approvedEvents.length > 0 ? (
+              approvedEvents.map((event) => (
+                <div key={event.id} className="event-card approved-card">
+                  <div className="event-header">
+                    <div className="event-icon">
+                      {getEventIcon(event.title)}
+                    </div>
+                    <span className="status-badge approved">Approved</span>
                   </div>
                   <h3 className="event-title">{event.title}</h3>
                   <div className="event-details">

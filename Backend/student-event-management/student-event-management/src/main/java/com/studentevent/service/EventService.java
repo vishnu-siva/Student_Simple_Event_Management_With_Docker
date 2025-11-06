@@ -18,6 +18,16 @@ public class EventService {
         return eventRepository.findAll();
     }
 
+    // Get approved events sorted by date (ascending)
+    public List<Event> getApprovedEventsSortedByDate() {
+        return eventRepository.findByStatusOrderByDateAscTimeAsc("APPROVED");
+    }
+
+    // Get recent events (PENDING + APPROVED) excluding REJECTED, sorted by date
+    public List<Event> getRecentEventsSortedByDate() {
+        return eventRepository.findRecentEventsExcludingRejected();
+    }
+
     public List<Event> getApprovedEvents() {
         return eventRepository.findByStatus("APPROVED");
     }
@@ -63,7 +73,7 @@ public class EventService {
     }
 
     public List<Event> searchEvents(String keyword) {
-        return eventRepository.findByTitleContainingIgnoreCase(keyword);
+        return eventRepository.searchNonRejectedEvents(keyword);
     }
 
     public long countEventsByStatus(String status) {

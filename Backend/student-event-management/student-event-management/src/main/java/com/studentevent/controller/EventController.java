@@ -26,7 +26,12 @@ public class EventController {
 
     @GetMapping("/approved")
     public ResponseEntity<List<Event>> getApprovedEvents() {
-        return ResponseEntity.ok(eventService.getApprovedEvents());
+        return ResponseEntity.ok(eventService.getApprovedEventsSortedByDate());
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<List<Event>> getRecentEvents() {
+        return ResponseEntity.ok(eventService.getRecentEventsSortedByDate());
     }
 
     @GetMapping("/{id}")

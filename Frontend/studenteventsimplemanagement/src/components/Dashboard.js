@@ -43,7 +43,7 @@ function Dashboard() {
     localStorage.removeItem('adminId');
     localStorage.removeItem('adminName');
     localStorage.removeItem('adminEmail');
-    navigate('/admin-login');
+    navigate('/');
   };
 
   const getInitial = (name) => {

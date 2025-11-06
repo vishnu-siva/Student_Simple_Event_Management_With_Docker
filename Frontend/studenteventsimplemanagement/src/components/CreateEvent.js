@@ -51,7 +51,7 @@ function CreateEvent() {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate('/admin-login');
+    navigate('/');
   };
 
   return (

@@ -6,7 +6,7 @@
 
 .create-event-main {
   flex: 1;
-  padding: 40px;
+  padding: 30px;
 }
 
 .create-event-content {
@@ -17,12 +17,12 @@
 .page-title {
   font-size: 32px;
   font-weight: 700;
-  color: #202124;
+  color: #000000;
   margin-bottom: 32px;
 }
 
 .event-form {
-  background: white;
+  background: linear-gradient(135deg, #7e90e0 0%, #ad80da 100%);
   border-radius: 12px;
   padding: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -36,7 +36,7 @@
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: #5f6368;
+  color: #000000;
   margin-bottom: 8px;
 }
 

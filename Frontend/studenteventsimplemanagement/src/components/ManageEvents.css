@@ -21,7 +21,7 @@
 }
 
 .table-container {
-  background: white;
+  background: linear-gradient(135deg, #b5c1fa 0%, #dcbcfb 100%);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -33,15 +33,16 @@
 }
 
 .events-table thead {
-  background-color: #f1f3f4;
+  background-color: #af48d5;
+  
 }
 
 .events-table th {
   padding: 16px;
   text-align: left;
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 600;
-  color: #5f6368;
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -52,13 +53,13 @@
 }
 
 .events-table tbody tr:hover {
-  background-color: #f8f9fa;
+   background: linear-gradient(135deg, #8095f1 0%, #d1a8fa 100%);
 }
 
 .events-table td {
   padding: 16px;
-  font-size: 14px;
-  color: #202124;
+  font-size: 16px;
+  color: #000000;
 }
 
 .action-buttons {
@@ -109,7 +110,7 @@
 
 .approve-btn {
   background-color: #e8f5e9;
-  color: #2e7d32;
+  color: #490f83;
 }
 
 .approve-btn:hover:not(:disabled) {
@@ -128,7 +129,7 @@
 }
 
 .reject-btn:hover:not(:disabled) {
-  background-color: #ffcdd2;
+  background-color: #dd8891;
 }
 
 .reject-btn.active {
@@ -145,7 +146,7 @@
 .no-events {
   padding: 40px;
   text-align: center;
-  color: #5f6368;
+  color: #635f68;
   font-size: 16px;
 }
 
@@ -161,7 +162,7 @@
 
 @media (max-width: 768px) {
   .manage-events-main {
-    padding: 20px;
+    padding: 12px;
   }
 
   .table-container {

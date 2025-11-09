@@ -1,21 +1,8 @@
-/*
- Local-only CI pipeline (no AWS deploy yet, Docker Hub push optional).
- Parameters:
-     DOCKERHUB_USERNAME  - Used only if PUSH_IMAGES=true.
-     PUSH_IMAGES         - false by default so build + test run entirely local.
- Credentials (only needed when PUSH_IMAGES=true):
-     dockerhub-credentials (Username/Password for Docker Hub)
- Stages: Checkout -> Build Backend -> Build Frontend -> Test -> (optional) Push
- Result when PUSH_IMAGES=false:
-     - Images exist locally: ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER}, :latest and same for frontend.
-     - No external registry interaction.
-*/
+
 pipeline {
     agent any
 
     options {
-        // Fail fast on first error, keep build logs concise
-        ansiColor('xterm')
         buildDiscarder(logRotator(numToKeepStr: '15'))
         timeout(time: 30, unit: 'MINUTES')
     }
@@ -31,6 +18,22 @@ pipeline {
     }
 
     stages {
+        stage('Verify Agent Tools') {
+            steps {
+                sh '''
+                    set -e
+                    echo "User: $(whoami)"
+                    echo "Checking Docker CLI..."
+                    docker --version || { echo "ERROR: Docker CLI not found."; exit 1; }
+                    echo "Checking Docker daemon..."
+                    docker info > /dev/null 2>&1 || { echo "ERROR: Docker daemon not reachable. Add Jenkins user to docker group and restart Jenkins."; exit 1; }
+                    echo "Checking Docker Compose..."
+                    (docker-compose --version || docker compose version) > /dev/null 2>&1 || { echo "ERROR: Docker Compose not found."; exit 1; }
+                    echo "Checking curl..."
+                    curl --version > /dev/null 2>&1 || { echo "ERROR: curl not found."; exit 1; }
+                '''
+            }
+        }
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/vishnu-siva/Student_Simple_Event_Management_With_Docker.git'
@@ -59,29 +62,18 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'docker-compose -f docker-compose.test.yml up -d'
+                        sh 'docker-compose -f docker-compose.test.yml up -d || docker compose -f docker-compose.test.yml up -d'
                         sh 'echo Waiting for backend to start...'
                         sh 'sleep 30'
                         sh 'curl -f http://localhost:8080/api/events || exit 1'
                     } finally {
-                        sh 'docker-compose -f docker-compose.test.yml down -v'
+                        sh 'docker-compose -f docker-compose.test.yml down -v || docker compose -f docker-compose.test.yml down -v'
                     }
                 }
             }
         }
 
-        stage('Push Images') {
-            when { expression { return params.PUSH_IMAGES } }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-                    sh 'echo ${DOCKERHUB_PASS} | docker login -u ${DOCKERHUB_USER} --password-stdin'
-                    sh 'docker push ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER}'
-                    sh 'docker push ${DOCKER_IMAGE_BACKEND}:latest'
-                    sh 'docker push ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER}'
-                    sh 'docker push ${DOCKER_IMAGE_FRONTEND}:latest'
-                }
-            }
-        }
+       
     }
 
     post {

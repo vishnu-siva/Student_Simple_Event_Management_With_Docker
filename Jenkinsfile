@@ -36,7 +36,8 @@ pipeline {
         }
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/vishnu-siva/Student_Simple_Event_Management_With_Docker.git'
+               
+                checkout scm
             }
         }
 

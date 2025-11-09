@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: test-mysql
+    environment:
+      MYSQL_DATABASE: student_event_db
+      MYSQL_ROOT_PASSWORD: Vishnu
+    ports:
+      - "3307:3306"
+    networks:
+      - test-network
+
+  backend:
+    build:
+      context: ./Backend/student-event-management/student-event-management
+      dockerfile: Dockerfile
+    container_name: test-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: student_event_db
+      DB_USER: root
+      DB_PASSWORD: Vishnu
+    depends_on:
+      - mysql
+    networks:
+      - test-network
+
+  frontend:
+    build:
+      context: ./Frontend/studenteventsimplemanagement
+      dockerfile: Dockerfile
+    container_name: test-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge

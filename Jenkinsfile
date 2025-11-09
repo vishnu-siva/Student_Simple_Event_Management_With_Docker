@@ -44,8 +44,17 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('Backend/student-event-management/student-event-management') {
-                    sh 'docker build -t ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER} .'
-                    sh 'docker tag ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER} ${DOCKER_IMAGE_BACKEND}:latest'
+                    sh '''
+                        set -euxo pipefail
+                        echo "[Backend] Building image ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER}"
+                        docker build --progress=plain -t ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER} .
+                        echo "[Backend] Tagging latest"
+                        docker tag ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER} ${DOCKER_IMAGE_BACKEND}:latest
+                        echo "[Backend] Inspect built image"
+                        docker image inspect ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER} > /dev/null
+                        echo "[Backend] Images present:"
+                        docker images | grep student-event-backend || true
+                    '''
                 }
             }
         }
@@ -53,8 +62,17 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('Frontend/studenteventsimplemanagement') {
-                    sh 'docker build -t ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER} .'
-                    sh 'docker tag ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER} ${DOCKER_IMAGE_FRONTEND}:latest'
+                    sh '''
+                        set -euxo pipefail
+                        echo "[Frontend] Building image ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER}"
+                        docker build --progress=plain -t ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER} .
+                        echo "[Frontend] Inspect built image"
+                        docker image inspect ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER} > /dev/null
+                        echo "[Frontend] Tagging latest"
+                        docker tag ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER} ${DOCKER_IMAGE_FRONTEND}:latest
+                        echo "[Frontend] Images present:"
+                        docker images | grep student-event-frontend || true
+                    '''
                 }
             }
         }

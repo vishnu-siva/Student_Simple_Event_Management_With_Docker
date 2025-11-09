@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
@@ -9,6 +7,11 @@ services:
       MYSQL_ROOT_PASSWORD: Vishnu
     ports:
       - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
     networks:
       - test-network
 
@@ -26,7 +29,8 @@ services:
       DB_USER: root
       DB_PASSWORD: Vishnu
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - test-network
 

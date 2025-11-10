@@ -8,8 +8,8 @@ pipeline {
     }
 
     parameters {
-        string(name: 'DOCKERHUB_USERNAME', defaultValue: 'local-user', description: 'Docker Hub username (only used if pushing)')
-        booleanParam(name: 'PUSH_IMAGES', defaultValue: false, description: 'Set true to push images to Docker Hub')
+        string(name: 'DOCKERHUB_USERNAME', defaultValue: 'vishnuha', description: 'Docker Hub username')
+        booleanParam(name: 'PUSH_IMAGES', defaultValue: true, description: 'Set true to push images to Docker Hub')
     }
 
     environment {

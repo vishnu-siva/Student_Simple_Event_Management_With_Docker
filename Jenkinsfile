@@ -108,6 +108,18 @@ pipeline {
             }
         }
 
+        stage('Push Images') {
+            when { expression { return params.PUSH_IMAGES } }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+                    sh 'echo ${DOCKERHUB_PASS} | docker login -u ${DOCKERHUB_USER} --password-stdin'
+                    sh 'docker push ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER}'
+                    sh 'docker push ${DOCKER_IMAGE_BACKEND}:latest'
+                    sh 'docker push ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER}'
+                    sh 'docker push ${DOCKER_IMAGE_FRONTEND}:latest'
+                }
+            }
+        }
        
     }
 

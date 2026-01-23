@@ -53,6 +53,18 @@ services:
     networks:
       - student-event-network
 
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: student-event-jenkins
+    restart: unless-stopped
+    ports:
+      - "9090:8080"   
+      - "50000:50000"  
+    volumes:
+      - jenkins-data:/var/jenkins_home
+    networks:
+      - student-event-network
+
 networks:
   student-event-network:
     driver: bridge
@@ -60,4 +72,8 @@ networks:
 volumes:
   mysql-data:
     driver: local
+  jenkins-data:
+    driver: local
+
+
 

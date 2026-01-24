@@ -90,10 +90,15 @@ pipeline {
                         sh 'docker-compose -f docker-compose.test.yml up -d || docker compose -f docker-compose.test.yml up -d'
                         sh '''
                             set -e
-                            echo "Waiting for backend to be ready..."
+                            echo "Waiting for backend to be ready (via curl container)..."
+                            # Determine the Compose network name the backend is attached to
+                            NETWORK_NAME=$(docker inspect $(docker-compose -f docker-compose.test.yml ps -q backend) --format '{{range $k,$v := .NetworkSettings.Networks}}{{printf "%s" $k}}{{end}}')
+                            echo "Detected network: ${NETWORK_NAME}"
+                            # Ensure we have a curl image available
+                            docker pull curlimages/curl:8.5.0 > /dev/null 2>&1 || true
                             READY=""
                             for i in $(seq 1 60); do
-                                if docker-compose -f docker-compose.test.yml exec -T backend curl -sf http://localhost:8080/api/events > /dev/null 2>&1; then
+                                if docker run --rm --network "${NETWORK_NAME}" curlimages/curl:8.5.0 -sSf http://backend:8080/api/events > /dev/null 2>&1; then
                                     echo "Backend is up."
                                     READY=1
                                     break

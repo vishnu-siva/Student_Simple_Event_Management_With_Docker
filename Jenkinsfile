@@ -1,22 +1,22 @@
-
-pipeline {
-    agent any
-
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '15'))
-        timeout(time: 30, unit: 'MINUTES')
-    }
-
-    parameters {
-        string(name: 'DOCKERHUB_USERNAME', defaultValue: 'vishnuha', description: 'Docker Hub username')
-        booleanParam(name: 'PUSH_IMAGES', defaultValue: true, description: 'Set true to push images to Docker Hub')
-    }
-
-    environment {
-        DOCKER_IMAGE_BACKEND = "${params.DOCKERHUB_USERNAME}/student-event-backend"
-        DOCKER_IMAGE_FRONTEND = "${params.DOCKERHUB_USERNAME}/student-event-frontend"
-    }
-
+                                                sh '''
+                                                        set -e
+                                                        echo "Waiting for backend to be ready..."
+                                                        READY=""
+                                                        for i in $(seq 1 60); do
+                                                            if docker-compose -f docker-compose.test.yml exec -T backend curl -sf http://localhost:8080/api/events > /dev/null 2>&1; then
+                                                                echo "Backend is up."
+                                                                READY=1
+                                                                break
+                                                            fi
+                                                            sleep 2
+                                                        done
+                                                        if [ -z "${READY}" ]; then
+                                                            echo "Backend not ready in time. Showing service status and logs:"
+                                                            (docker-compose -f docker-compose.test.yml ps || docker compose -f docker-compose.test.yml ps) || true
+                                                            (docker-compose -f docker-compose.test.yml logs backend || docker compose -f docker-compose.test.yml logs backend) || true
+                                                            exit 1
+                                                        fi
+                                                '''
     stages {
         stage('Verify Agent Tools') {
             steps {

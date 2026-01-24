@@ -38,7 +38,7 @@ pipeline {
         }
         stage('Checkout') {
             steps {
-                checkout([
+                                if docker-compose -f docker-compose.test.yml exec -T backend curl -sf http://localhost:8080/api/events > /dev/null 2>&1; then
                     $class: 'GitSCM',
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[

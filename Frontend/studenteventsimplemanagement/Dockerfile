@@ -7,8 +7,8 @@ WORKDIR /app
 
 COPY package*.json ./
 
-
-RUN npm install
+# Install dependencies with retry for network resilience
+RUN npm install --no-audit --legacy-peer-deps || npm install --no-audit --legacy-peer-deps || npm install --no-audit --legacy-peer-deps
 
 # Copy source code
 COPY . .

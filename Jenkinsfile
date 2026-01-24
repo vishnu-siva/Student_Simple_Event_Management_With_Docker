@@ -53,7 +53,7 @@ pipeline {
                     sh '''
                         set -euo pipefail
                         echo "[Backend] Building image ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER}"
-                        docker build --progress=plain -t ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER} .
+                        docker build -t ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER} .
                         echo "[Backend] Tagging latest"
                         docker tag ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER} ${DOCKER_IMAGE_BACKEND}:latest
                         echo "[Backend] Inspect built image"
@@ -71,7 +71,7 @@ pipeline {
                     sh '''
                         set -euo pipefail
                         echo "[Frontend] Building image ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER}"
-                        docker build --progress=plain -t ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER} .
+                        docker build -t ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER} .
                         echo "[Frontend] Inspect built image"
                         docker image inspect ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER} > /dev/null
                         echo "[Frontend] Tagging latest"

@@ -29,6 +29,8 @@ pipeline {
                     docker info > /dev/null 2>&1 || { echo "ERROR: Docker daemon not reachable. Add Jenkins user to docker group and restart Jenkins."; exit 1; }
                     echo "Checking Docker Compose..."
                     (docker-compose --version || docker compose version) > /dev/null 2>&1 || { echo "ERROR: Docker Compose not found."; exit 1; }
+                    echo "Checking Git..."
+                    git --version > /dev/null 2>&1 || { echo "ERROR: Git not found."; exit 1; }
                     echo "Checking curl..."
                     curl --version > /dev/null 2>&1 || { echo "ERROR: curl not found."; exit 1; }
                 '''
@@ -36,8 +38,14 @@ pipeline {
         }
         stage('Checkout') {
             steps {
-               
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/vishnu-siva/Student_Simple_Event_Management_With_Docker.git',
+                        credentialsId: 'github-credentials'
+                    ]]
+                ])
             }
         }
 

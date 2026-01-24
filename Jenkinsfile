@@ -95,7 +95,7 @@ pipeline {
                                                         echo "Waiting for backend to be ready..."
                                                         READY=""
                                                         for i in $(seq 1 60); do
-                                                            if curl -sf http://localhost:8080/api/events > /dev/null; then
+                                    if docker-compose -f docker-compose.test.yml exec -T backend curl -sf http://localhost:8080/api/events > /dev/null 2>&1; then
                                                                 echo "Backend is up."
                                                                 READY=1
                                                                 break

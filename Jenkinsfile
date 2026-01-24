@@ -1,22 +1,19 @@
-                                                sh '''
-                                                        set -e
-                                                        echo "Waiting for backend to be ready..."
-                                                        READY=""
-                                                        for i in $(seq 1 60); do
-                                                            if docker-compose -f docker-compose.test.yml exec -T backend curl -sf http://localhost:8080/api/events > /dev/null 2>&1; then
-                                                                echo "Backend is up."
-                                                                READY=1
-                                                                break
-                                                            fi
-                                                            sleep 2
-                                                        done
-                                                        if [ -z "${READY}" ]; then
-                                                            echo "Backend not ready in time. Showing service status and logs:"
-                                                            (docker-compose -f docker-compose.test.yml ps || docker compose -f docker-compose.test.yml ps) || true
-                                                            (docker-compose -f docker-compose.test.yml logs backend || docker compose -f docker-compose.test.yml logs backend) || true
-                                                            exit 1
-                                                        fi
-                                                '''
+pipeline {
+    agent any
+
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
+    parameters {
+        booleanParam(name: 'PUSH_IMAGES', defaultValue: false, description: 'Push built images to Docker Hub')
+    }
+
+    environment {
+        DOCKER_IMAGE_BACKEND = 'vishnuha/student-event-backend'
+        DOCKER_IMAGE_FRONTEND = 'vishnuha/student-event-frontend'
+    }
+
     stages {
         stage('Verify Agent Tools') {
             steps {
@@ -36,9 +33,10 @@
                 '''
             }
         }
+
         stage('Checkout') {
             steps {
-                                if docker-compose -f docker-compose.test.yml exec -T backend curl -sf http://localhost:8080/api/events > /dev/null 2>&1; then
+                checkout([
                     $class: 'GitSCM',
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[
@@ -53,7 +51,7 @@
             steps {
                 dir('Backend/student-event-management/student-event-management') {
                     sh '''
-                        set -euo
+                        set -euo pipefail
                         echo "[Backend] Building image ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER}"
                         docker build --progress=plain -t ${DOCKER_IMAGE_BACKEND}:${BUILD_NUMBER} .
                         echo "[Backend] Tagging latest"
@@ -71,7 +69,7 @@
             steps {
                 dir('Frontend/studenteventsimplemanagement') {
                     sh '''
-                        set -euo
+                        set -euo pipefail
                         echo "[Frontend] Building image ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER}"
                         docker build --progress=plain -t ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER} .
                         echo "[Frontend] Inspect built image"
@@ -89,26 +87,26 @@
             steps {
                 script {
                     try {
-                                                sh 'docker-compose -f docker-compose.test.yml up -d || docker compose -f docker-compose.test.yml up -d'
-                                                sh '''
-                                                        set -e
-                                                        echo "Waiting for backend to be ready..."
-                                                        READY=""
-                                                        for i in $(seq 1 60); do
-                                    if docker-compose -f docker-compose.test.yml exec -T backend curl -sf http://localhost:8080/api/events > /dev/null 2>&1; then
-                                                                echo "Backend is up."
-                                                                READY=1
-                                                                break
-                                                            fi
-                                                            sleep 2
-                                                        done
-                                                        if [ -z "${READY}" ]; then
-                                                            echo "Backend not ready in time. Showing service status and logs:"
-                                                            (docker-compose -f docker-compose.test.yml ps || docker compose -f docker-compose.test.yml ps) || true
-                                                            (docker-compose -f docker-compose.test.yml logs backend || docker compose -f docker-compose.test.yml logs backend) || true
-                                                            exit 1
-                                                        fi
-                                                '''
+                        sh 'docker-compose -f docker-compose.test.yml up -d || docker compose -f docker-compose.test.yml up -d'
+                        sh '''
+                            set -e
+                            echo "Waiting for backend to be ready..."
+                            READY=""
+                            for i in $(seq 1 60); do
+                                if docker-compose -f docker-compose.test.yml exec -T backend curl -sf http://localhost:8080/api/events > /dev/null 2>&1; then
+                                    echo "Backend is up."
+                                    READY=1
+                                    break
+                                fi
+                                sleep 2
+                            done
+                            if [ -z "${READY}" ]; then
+                                echo "Backend not ready in time. Showing service status and logs:"
+                                (docker-compose -f docker-compose.test.yml ps || docker compose -f docker-compose.test.yml ps) || true
+                                (docker-compose -f docker-compose.test.yml logs backend || docker compose -f docker-compose.test.yml logs backend) || true
+                                exit 1
+                            fi
+                        '''
                     } finally {
                         sh 'docker-compose -f docker-compose.test.yml down -v || docker compose -f docker-compose.test.yml down -v'
                     }
@@ -128,7 +126,6 @@
                 }
             }
         }
-       
     }
 
     post {

@@ -98,7 +98,9 @@ pipeline {
                             set -e
                             echo "Waiting for backend to be ready (via curl container)..."
                             # Determine the Compose network name the backend is attached to
-                            NETWORK_NAME=$(docker inspect $(docker-compose -f docker-compose.test.yml ps -q backend) --format '{{range $k,$v := .NetworkSettings.Networks}}{{printf "%s" $k}}{{end}}')
+                            BACKEND_CONTAINER_ID=$(docker compose -f docker-compose.test.yml ps -q backend)
+                            echo "Backend container ID: ${BACKEND_CONTAINER_ID}"
+                            NETWORK_NAME=$(docker inspect "${BACKEND_CONTAINER_ID}" --format '{{range $k,$v := .NetworkSettings.Networks}}{{printf "%s" $k}}{{end}}')
                             echo "Detected network: ${NETWORK_NAME}"
                             # Ensure we have a curl image available
                             docker pull curlimages/curl:8.5.0 > /dev/null 2>&1 || true

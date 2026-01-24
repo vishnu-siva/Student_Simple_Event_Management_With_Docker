@@ -51,7 +51,7 @@ services:
       - student-event-network
 
   jenkins:
-    image: jenkins/jenkins:lts
+    image: student-event-jenkins:docker
     container_name: student-event-jenkins
     restart: unless-stopped
     user: root

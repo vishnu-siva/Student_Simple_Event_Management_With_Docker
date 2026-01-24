@@ -87,6 +87,12 @@ pipeline {
             steps {
                 script {
                     try {
+                        sh '''
+                            echo "Stopping any conflicting containers on test ports..."
+                            docker ps -q --filter "name=student-event-mysql" | xargs -r docker stop || true
+                            docker ps -q --filter "name=student-event-backend" --filter "publish=8080" | xargs -r docker stop || true
+                            docker ps -q --filter "name=student-event-frontend" --filter "publish=3000" | xargs -r docker stop || true
+                        '''
                         sh 'docker-compose -f docker-compose.test.yml up -d || docker compose -f docker-compose.test.yml up -d'
                         sh '''
                             set -e

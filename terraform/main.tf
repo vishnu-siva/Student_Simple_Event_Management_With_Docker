@@ -37,6 +37,7 @@ resource "aws_instance" "app_server" {
   
   # Enable public IP assignment
   associate_public_ip_address = var.enable_public_ip
+  key_name = var.key_name
 
   # User data to install Docker and deploy application
   user_data = local.user_data

@@ -89,3 +89,9 @@ variable "tags" {
     CostCenter = "Education"
   }
 }
+
+variable "key_name" {
+  description = "EC2 key pair name"
+  type        = string
+  default     = "student-event-key"
+}

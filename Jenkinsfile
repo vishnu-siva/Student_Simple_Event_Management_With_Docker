@@ -1,4 +1,29 @@
-pipeline {
+stage('Deploy to AWS with Terraform') {
+    when {
+        branch 'main'
+    }
+    steps {
+        dir('terraform') {
+            sh '''
+                echo "================================"
+                echo "Deploying to AWS with Terraform"
+                echo "================================"
+                
+                # Initialize Terraform
+                terraform init
+                
+                # Plan deployment
+                terraform plan -out=tfplan
+                
+                # Apply automatically
+                terraform apply -auto-approve tfplan
+                
+                echo "Deployment complete!"
+                echo "App is live at: http://$(terraform output -raw elastic_ip_address):3000"
+            '''
+        }
+    }
+}pipeline {
     agent any
 
     options {

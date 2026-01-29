@@ -1,29 +1,4 @@
-stage('Deploy to AWS with Terraform') {
-    when {
-        branch 'main'
-    }
-    steps {
-        dir('terraform') {
-            sh '''
-                echo "================================"
-                echo "Deploying to AWS with Terraform"
-                echo "================================"
-                
-                # Initialize Terraform
-                terraform init
-                
-                # Plan deployment
-                terraform plan -out=tfplan
-                
-                # Apply automatically
-                terraform apply -auto-approve tfplan
-                
-                echo "Deployment complete!"
-                echo "App is live at: http://$(terraform output -raw elastic_ip_address):3000"
-            '''
-        }
-    }
-}pipeline {
+pipeline {
     agent any
 
     options {
@@ -164,6 +139,31 @@ stage('Deploy to AWS with Terraform') {
                     sh 'docker push ${DOCKER_IMAGE_BACKEND}:latest'
                     sh 'docker push ${DOCKER_IMAGE_FRONTEND}:${BUILD_NUMBER}'
                     sh 'docker push ${DOCKER_IMAGE_FRONTEND}:latest'
+                }
+            }
+        }
+
+        stage('Deploy to AWS with Terraform') {
+            when { branch 'main' }
+            steps {
+                dir('terraform') {
+                    sh '''
+                        echo "================================"
+                        echo "Deploying to AWS with Terraform"
+                        echo "================================"
+
+                        # Initialize Terraform
+                        terraform init
+
+                        # Plan deployment
+                        terraform plan -out=tfplan
+
+                        # Apply automatically
+                        terraform apply -auto-approve tfplan
+
+                        echo "Deployment complete!"
+                        echo "App is live at: http://$(terraform output -raw elastic_ip_address):3000"
+                    '''
                 }
             }
         }

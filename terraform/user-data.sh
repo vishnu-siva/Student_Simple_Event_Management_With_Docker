@@ -53,33 +53,21 @@ cd /home/ubuntu
 git clone --branch ${docker_compose_branch} ${docker_compose_repo}
 cd Student_Simple_Event_Management_With_Docker || cd student-event-management || true
 
-# Create docker-compose override file with specific images
-echo "[5/6] Creating docker-compose.override.yml..."
-cat > docker-compose.override.yml <<'EOF'
-version: '3.8'
+# Start Docker containers using production compose file
+echo "[5/6] Starting Docker containers..."
+# Use docker-compose.prod.yml if available, otherwise fall back to docker-compose.yml
+if [ -f "docker-compose.prod.yml" ]; then
+  echo "Using docker-compose.prod.yml (production configuration)"
+  docker-compose -f docker-compose.prod.yml pull
+  docker-compose -f docker-compose.prod.yml up -d
+else
+  echo "Using docker-compose.yml"
+  # Remove jenkins service from docker-compose if it exists
+  docker-compose pull --ignore-pull-failures || true
+  docker-compose up -d mysql backend frontend
+fi
 
-services:
-  backend:
-    image: ${backend_image}
-  
-  frontend:
-    image: ${frontend_image}
-EOF
-
-# Replace variables in override file
-sed -i "s|\${backend_image}|${backend_image}|g" docker-compose.override.yml
-sed -i "s|\${frontend_image}|${frontend_image}|g" docker-compose.override.yml
-
-echo "docker-compose.override.yml created:"
-cat docker-compose.override.yml
-
-# Start Docker containers
-echo "[6/6] Starting Docker containers..."
-docker-compose pull
-docker-compose up -d
-
-# Wait for services to be ready
-echo "Waiting for services to start..."
+echo "[6/6] Checking Docker containers..."
 sleep 30
 
 # Check service status

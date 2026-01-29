@@ -37,6 +37,9 @@ stage('Deploy to AWS with Terraform') {
     environment {
         DOCKER_IMAGE_BACKEND = 'vishnuha/student-event-backend'
         DOCKER_IMAGE_FRONTEND = 'vishnuha/student-event-frontend'
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        AWS_DEFAULT_REGION = 'us-east-1'
     }
 
     stages {

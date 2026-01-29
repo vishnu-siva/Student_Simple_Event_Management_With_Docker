@@ -156,7 +156,12 @@ pipeline {
                         echo "================================"
                         echo "Deploying to AWS with Terraform"
                         echo "================================"
-
+                        
+                        echo "DEBUG: Listing terraform directory contents:"
+                        ls -la
+                        echo "DEBUG: Current directory:"
+                        pwd
+                        
                         # Run Terraform in a container (no local install needed)
                                                 docker run --rm \
                                                     --entrypoint sh \

@@ -157,17 +157,18 @@ pipeline {
                         echo "Deploying to AWS with Terraform"
                         echo "================================"
 
-                        # Initialize Terraform
-                        terraform init
-
-                        # Plan deployment
-                        terraform plan -out=tfplan
-
-                        # Apply automatically
-                        terraform apply -auto-approve tfplan
+                        # Run Terraform in a container (no local install needed)
+                        docker run --rm \
+                          -e AWS_ACCESS_KEY_ID \
+                          -e AWS_SECRET_ACCESS_KEY \
+                          -e AWS_DEFAULT_REGION \
+                          -v "$PWD":/workspace \
+                          -w /workspace \
+                          hashicorp/terraform:1.6.6 \
+                          sh -c "terraform init && terraform plan -out=tfplan && terraform apply -auto-approve tfplan"
 
                         echo "Deployment complete!"
-                        echo "App is live at: http://$(terraform output -raw elastic_ip_address):3000"
+                        echo "App is live at: http://$(docker run --rm -v \"$PWD\":/workspace -w /workspace hashicorp/terraform:1.6.6 output -raw elastic_ip_address):3000"
                     '''
                 }
             }

@@ -144,7 +144,12 @@ pipeline {
         }
 
         stage('Deploy to AWS with Terraform') {
-            when { branch 'main' }
+            when {
+                allOf {
+                    expression { return params.PUSH_IMAGES }
+                    expression { return env.BRANCH_NAME == null || env.BRANCH_NAME == 'main' }
+                }
+            }
             steps {
                 dir('terraform') {
                     sh '''

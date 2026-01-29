@@ -1,3 +1,4 @@
+# AWS EC2 Infrastructure Configuration
 # Data source to find the latest Ubuntu 22.04 LTS AMI
 data "aws_ami" "ubuntu" {
   most_recent = true

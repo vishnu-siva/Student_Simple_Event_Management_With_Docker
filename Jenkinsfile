@@ -162,17 +162,18 @@ pipeline {
                         echo "DEBUG: Current directory:"
                         pwd
                         
-                        # Run Terraform in a container (no local install needed)
-                        docker run --rm \
-                            --entrypoint sh \
-                            -e AWS_ACCESS_KEY_ID \
-                            -e AWS_SECRET_ACCESS_KEY \
-                            -e AWS_DEFAULT_REGION \
-                            --user root \
-                            -v "$(pwd)":/workspace \
-                            -w /workspace \
-                            hashicorp/terraform:1.6.6 \
-                            -c "ls -la && terraform init && terraform plan -out=tfplan && terraform apply -auto-approve tfplan"
+                        # Install Terraform if not present
+                        if ! command -v terraform &> /dev/null; then
+                            echo "Installing Terraform..."
+                            wget -q https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip
+                            unzip -o terraform_1.6.6_linux_amd64.zip -d /usr/local/bin/
+                            rm terraform_1.6.6_linux_amd64.zip
+                        fi
+                        
+                        terraform version
+                        terraform init
+                        terraform plan -out=tfplan
+                        terraform apply -auto-approve tfplan
 
                         echo "Deployment complete!"
                     '''

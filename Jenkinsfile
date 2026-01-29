@@ -165,9 +165,9 @@ pipeline {
                         # Install Terraform if not present
                         if ! command -v terraform &> /dev/null; then
                             echo "Installing Terraform..."
-                            wget -q https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip
-                            unzip -o terraform_1.6.6_linux_amd64.zip -d /usr/local/bin/
-                            rm terraform_1.6.6_linux_amd64.zip
+                            curl -sSL https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip -o /tmp/terraform.zip
+                            unzip -o /tmp/terraform.zip -d /usr/local/bin/
+                            rm /tmp/terraform.zip
                         fi
                         
                         terraform version

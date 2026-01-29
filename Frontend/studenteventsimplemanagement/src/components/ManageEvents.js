@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FiHome, FiPlusCircle, FiList, FiLogOut, FiSearch, FiEdit2, FiTrash2, FiCheck, FiX } from 'react-icons/fi';
 import './ManageEvents.css';
+import API_BASE_URL from '../config';
 
 function ManageEvents() {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ function ManageEvents() {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/events');
+      const response = await axios.get(`${API_BASE_URL}/api/events`);
       setEvents(response.data);
       setFilteredEvents(response.data);
     } catch (error) {
@@ -40,7 +41,7 @@ function ManageEvents() {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       try {
-        await axios.delete(`http://localhost:8080/api/events/${id}`);
+        await axios.delete(`${API_BASE_URL}/api/events/${id}`);
         fetchEvents();
       } catch (error) {
         console.error('Error deleting event:', error);
@@ -50,7 +51,7 @@ function ManageEvents() {
 
   const handleApprove = async (id) => {
     try {
-      await axios.put(`http://localhost:8080/api/events/${id}/approve`);
+      await axios.put(`${API_BASE_URL}/api/events/${id}/approve`);
       fetchEvents();
     } catch (error) {
       console.error('Error approving event:', error);
@@ -59,7 +60,7 @@ function ManageEvents() {
 
   const handleReject = async (id) => {
     try {
-      await axios.put(`http://localhost:8080/api/events/${id}/reject`);
+      await axios.put(`${API_BASE_URL}/api/events/${id}/reject`);
       fetchEvents();
     } catch (error) {
       console.error('Error rejecting event:', error);

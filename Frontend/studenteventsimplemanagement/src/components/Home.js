@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FiCalendar, FiMapPin, FiClock, FiSearch } from 'react-icons/fi';
 import './Home.css';
+import API_BASE_URL from '../config';
 
 function Home() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ function Home() {
 
   const fetchRecentEvents = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/events/recent');
+      const response = await axios.get(`${API_BASE_URL}/api/events/recent`);
       setRecentEvents(response.data);
     } catch (error) {
       console.error('Error fetching recent events:', error);
@@ -26,7 +27,7 @@ function Home() {
 
   const fetchApprovedEvents = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/events/approved');
+      const response = await axios.get(`${API_BASE_URL}/api/events/approved`);
       setApprovedEvents(response.data);
     } catch (error) {
       console.error('Error fetching approved events:', error);
@@ -41,7 +42,7 @@ function Home() {
       fetchRecentEvents();
     } else {
       try {
-        const response = await axios.get(`http://localhost:8080/api/events/search?keyword=${value}`);
+        const response = await axios.get(`${API_BASE_URL}/api/events/search?keyword=${value}`);
         setRecentEvents(response.data);
       } catch (error) {
         console.error('Error searching events:', error);

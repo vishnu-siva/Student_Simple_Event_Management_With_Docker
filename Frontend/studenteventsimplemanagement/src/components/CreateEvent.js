@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FiHome, FiPlusCircle, FiList, FiLogOut, FiCalendar, FiClock, FiMapPin } from 'react-icons/fi';
 import './CreateEvent.css';
+import API_BASE_URL from '../config';
 
 function CreateEvent() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ function CreateEvent() {
     setSuccess('');
 
     try {
-      await axios.post('http://localhost:8080/api/events', {
+      await axios.post(`${API_BASE_URL}/api/events`, {
         ...formData,
         status: 'PENDING'
       });

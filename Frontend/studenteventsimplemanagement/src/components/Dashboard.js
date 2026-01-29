@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FiHome, FiPlusCircle, FiList, FiLogOut } from 'react-icons/fi';
 import './Dashboard.css';
+import API_BASE_URL from '../config';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ function Dashboard() {
 
   const fetchEventCounts = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/events/count');
+      const response = await axios.get(`${API_BASE_URL}/api/events/count`);
       setEventCounts({
         approved: response.data.approved,
         total: response.data.total - response.data.rejected

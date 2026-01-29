@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import './AdminLogin.css';
+import API_BASE_URL from '../config';
 
 function AdminLogin() {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ function AdminLogin() {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:8080/api/admin/login', {
+      const response = await axios.post(`${API_BASE_URL}/api/admin/login`, {
         email,
         password
       });

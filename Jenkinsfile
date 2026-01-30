@@ -156,6 +156,12 @@ pipeline {
                         
                         // Option 1: Use SSM to run deployment script
                         sh """
+                            # Install AWS CLI if not already installed
+                            if ! command -v aws &> /dev/null; then
+                                echo "📦 Installing AWS CLI..."
+                                apt-get update && apt-get install -y awscli
+                            fi
+                            
                             echo "Deploying via AWS SSM to instance: ${instanceId}"
                             echo "AWS Account: \$(aws sts get-caller-identity --query 'Account' --output text)"
                             echo "AWS Region: ${AWS_DEFAULT_REGION}"

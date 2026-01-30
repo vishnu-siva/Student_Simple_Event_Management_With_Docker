@@ -149,8 +149,8 @@ pipeline {
                 script {
                     echo '🚀 Triggering deployment on EC2 instance...'
                     
-                    // Get EC2 instance ID from Terraform output or environment variable
-                    def instanceId = env.EC2_INSTANCE_ID ?: 'i-xxxxxxxxxxxxxxxxx'  // Will be set by Terraform or manual config
+                    // Your EC2 instance ID (permanent - never changes)
+                    def instanceId = env.EC2_INSTANCE_ID ?: 'i-0230831a6bf5c2650'
                     
                     // Option 1: Use SSM to run deployment script
                     sh """

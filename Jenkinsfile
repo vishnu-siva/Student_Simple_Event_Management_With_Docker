@@ -250,7 +250,6 @@ pipeline {
                 }
             }
         }
-        }
     }
 
     post {

@@ -30,11 +30,46 @@ locals {
   }))
 }
 
+# IAM Role for EC2 to access SSM
+resource "aws_iam_role" "ec2_ssm_role" {
+  name = "${var.project_name}-ec2-ssm-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name = "${var.project_name}-ec2-ssm-role"
+  }
+}
+
+# Attach AWS managed policy for SSM
+resource "aws_iam_role_policy_attachment" "ec2_ssm_policy" {
+  role       = aws_iam_role.ec2_ssm_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+# IAM Instance Profile
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "${var.project_name}-ec2-profile"
+  role = aws_iam_role.ec2_ssm_role.name
+}
+
 # EC2 Instance
 resource "aws_instance" "app_server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.app_sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
   
   # Enable public IP assignment
   associate_public_ip_address = var.enable_public_ip
@@ -91,4 +126,21 @@ resource "aws_eip" "app_eip" {
   }
 
   depends_on = [aws_instance.app_server]
+}
+
+resource "aws_ebs_volume" "mysql_data" {
+  availability_zone = aws_instance.app_server.availability_zone
+  size              = 20
+  type              = "gp3"
+  encrypted         = true
+
+  tags = {
+    Name = "${var.project_name}-mysql-ebs"
+  }
+}
+
+resource "aws_volume_attachment" "mysql_data_attach" {
+  device_name = "/dev/xvdf"
+  volume_id   = aws_ebs_volume.mysql_data.id
+  instance_id = aws_instance.app_server.id
 }

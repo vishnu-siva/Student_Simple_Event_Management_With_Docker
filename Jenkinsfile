@@ -13,7 +13,6 @@ pipeline {
         DOCKER_IMAGE_BACKEND = 'vishnuha/student-event-backend'
         DOCKER_IMAGE_FRONTEND = 'vishnuha/student-event-frontend'
         AWS_DEFAULT_REGION = 'us-east-1'
-        AWS_CREDENTIALS_ID = 'aws-credentials'
     }
 
     stages {
@@ -145,7 +144,7 @@ pipeline {
         stage('Deploy to EC2') {
             when { expression { return params.PUSH_IMAGES } }
             steps {
-                withAWS(credentials: env.AWS_CREDENTIALS_ID, region: env.AWS_DEFAULT_REGION) {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
                     script {
                         echo '🚀 Triggering deployment on EC2 instance...'
                         
@@ -213,7 +212,7 @@ pipeline {
                 }
             }
             steps {
-                withAWS(credentials: env.AWS_CREDENTIALS_ID, region: env.AWS_DEFAULT_REGION) {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
                     dir('terraform') {
                         sh '''
                             echo "================================"

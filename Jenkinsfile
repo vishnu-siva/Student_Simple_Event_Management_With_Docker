@@ -157,6 +157,8 @@ pipeline {
                         // Option 1: Use SSM to run deployment script
                         sh """
                             echo "Deploying via AWS SSM to instance: ${instanceId}"
+                            echo "AWS Account: $(aws sts get-caller-identity --query 'Account' --output text)"
+                            echo "AWS Region: ${AWS_DEFAULT_REGION}"
                             
                             # Check if instance is running
                             INSTANCE_STATE=\$(aws ec2 describe-instances --instance-ids ${instanceId} --region ${AWS_DEFAULT_REGION} --query 'Reservations[0].Instances[0].State.Name' --output text 2>/dev/null || echo 'not-found')

@@ -12,9 +12,8 @@ pipeline {
     environment {
         DOCKER_IMAGE_BACKEND = 'vishnuha/student-event-backend'
         DOCKER_IMAGE_FRONTEND = 'vishnuha/student-event-frontend'
-        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
         AWS_DEFAULT_REGION = 'us-east-1'
+        AWS_CREDENTIALS_ID = 'aws-credentials'
     }
 
     stages {
@@ -146,49 +145,50 @@ pipeline {
         stage('Deploy to EC2') {
             when { expression { return params.PUSH_IMAGES } }
             steps {
-                script {
-                    echo '🚀 Triggering deployment on EC2 instance...'
-                    
-                    // Your EC2 instance ID (permanent - never changes)
-                    def instanceId = env.EC2_INSTANCE_ID ?: 'i-0230831a6bf5c2650'
-                    
-                    // Option 1: Use SSM to run deployment script
-                    sh """
-                        echo "Deploying via AWS SSM to instance: ${instanceId}"
+                withAWS(credentials: env.AWS_CREDENTIALS_ID, region: env.AWS_DEFAULT_REGION) {
+                    script {
+                        echo '🚀 Triggering deployment on EC2 instance...'
                         
-                        # Check if instance is running
-                        INSTANCE_STATE=\$(aws ec2 describe-instances --instance-ids ${instanceId} --region ${AWS_DEFAULT_REGION} --query 'Reservations[0].Instances[0].State.Name' --output text 2>/dev/null || echo 'not-found')
+                        // Your EC2 instance ID (permanent - never changes)
+                        def instanceId = env.EC2_INSTANCE_ID ?: 'i-0230831a6bf5c2650'
                         
-                        if [ "\$INSTANCE_STATE" = "running" ]; then
-                            echo "✅ Instance is running, deploying..."
-                            
-                            # Execute deployment script via SSM
-                            aws ssm send-command \\
-                                --instance-ids ${instanceId} \\
-                                --region ${AWS_DEFAULT_REGION} \\
-                                --document-name "AWS-RunShellScript" \\
-                                --parameters 'commands=[
-                                    "sudo -u ubuntu bash /home/ubuntu/deploy.sh"
-                                ]' \\
-                                --comment "Jenkins triggered deployment - Build #${BUILD_NUMBER}" \\
-                                --output text
-                            
-                            echo "✅ Deployment triggered successfully!"
-                        else
-                            echo "⚠️  Instance not running (state: \$INSTANCE_STATE), skipping deployment"
-                            echo "You can manually deploy later using Terraform"
-                        fi
-                    """
-                    
-                    // Option 2: Use SSH if SSM is not available
-                    // Uncomment this if you prefer SSH
-                    /*
-                    withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
+                        // Option 1: Use SSM to run deployment script
                         sh """
-                            # Get EC2 public IP
-                            EC2_IP=\$(aws ec2 describe-instances --instance-ids ${instanceId} --region ${AWS_DEFAULT_REGION} --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
+                            echo "Deploying via AWS SSM to instance: ${instanceId}"
                             
-                            echo "Deploying to EC2 at \$EC2_IP"
+                            # Check if instance is running
+                            INSTANCE_STATE=\$(aws ec2 describe-instances --instance-ids ${instanceId} --region ${AWS_DEFAULT_REGION} --query 'Reservations[0].Instances[0].State.Name' --output text 2>/dev/null || echo 'not-found')
+                            
+                            if [ "\$INSTANCE_STATE" = "running" ]; then
+                                echo "✅ Instance is running, deploying..."
+                                
+                                # Execute deployment script via SSM
+                                aws ssm send-command \\
+                                    --instance-ids ${instanceId} \\
+                                    --region ${AWS_DEFAULT_REGION} \\
+                                    --document-name "AWS-RunShellScript" \\
+                                    --parameters 'commands=[
+                                        "sudo -u ubuntu bash /home/ubuntu/deploy.sh"
+                                    ]' \\
+                                    --comment "Jenkins triggered deployment - Build #${BUILD_NUMBER}" \\
+                                    --output text
+                                
+                                echo "✅ Deployment triggered successfully!"
+                            else
+                                echo "⚠️  Instance not running (state: \$INSTANCE_STATE), skipping deployment"
+                                echo "You can manually deploy later using Terraform"
+                            fi
+                        """
+                        
+                        // Option 2: Use SSH if SSM is not available
+                        // Uncomment this if you prefer SSH
+                        /*
+                        withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
+                            sh """
+                                # Get EC2 public IP
+                                EC2_IP=\$(aws ec2 describe-instances --instance-ids ${instanceId} --region ${AWS_DEFAULT_REGION} --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
+                                
+                                echo "Deploying to EC2 at \$EC2_IP"
                             
                             # Copy deployment script
                             scp -i \${SSH_KEY} -o StrictHostKeyChecking=no deploy.sh \${SSH_USER}@\${EC2_IP}:/home/ubuntu/
@@ -200,6 +200,7 @@ pipeline {
                         """
                     }
                     */
+                    }
                 }
             }
         }
@@ -212,40 +213,43 @@ pipeline {
                 }
             }
             steps {
-                dir('terraform') {
-                    sh '''
-                        echo "================================"
-                        echo "Deploying to AWS with Terraform"
-                        echo "================================"
-                        
-                        # Install Terraform if not present
-                        if ! command -v terraform &> /dev/null; then
-                            echo "Installing Terraform..."
-                            curl -sSL https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip -o /tmp/terraform.zip
-                            unzip -o /tmp/terraform.zip -d /usr/local/bin/
-                            rm /tmp/terraform.zip
-                        fi
-                        
-                        terraform version
-                        
-                        # Initialize with remote backend (S3)
-                        # This preserves state across Jenkins runs
-                        terraform init -reconfigure
-                        
-                        # Plan to check what changes are needed
-                        terraform plan -out=tfplan
-                        
-                        # Apply only if changes detected
-                        # This reuses existing instances instead of recreating
-                        terraform apply -auto-approve tfplan
+                withAWS(credentials: env.AWS_CREDENTIALS_ID, region: env.AWS_DEFAULT_REGION) {
+                    dir('terraform') {
+                        sh '''
+                            echo "================================"
+                            echo "Deploying to AWS with Terraform"
+                            echo "================================"
+                            
+                            # Install Terraform if not present
+                            if ! command -v terraform &> /dev/null; then
+                                echo "Installing Terraform..."
+                                curl -sSL https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip -o /tmp/terraform.zip
+                                unzip -o /tmp/terraform.zip -d /usr/local/bin/
+                                rm /tmp/terraform.zip
+                            fi
+                            
+                            terraform version
+                            
+                            # Initialize with remote backend (S3)
+                            # This preserves state across Jenkins runs
+                            terraform init -reconfigure
+                            
+                            # Plan to check what changes are needed
+                            terraform plan -out=tfplan
+                            
+                            # Apply only if changes detected
+                            # This reuses existing instances instead of recreating
+                            terraform apply -auto-approve tfplan
 
-                        echo "Deployment complete!"
-                        echo ""
-                        echo "Application URLs:"
-                        terraform output application_urls
-                    '''
+                            echo "Deployment complete!"
+                            echo ""
+                            echo "Application URLs:"
+                            terraform output application_urls
+                        '''
+                    }
                 }
             }
+        }
         }
     }
 

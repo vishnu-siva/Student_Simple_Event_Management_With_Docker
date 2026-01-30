@@ -27,6 +27,7 @@ locals {
     docker_compose_branch = var.docker_compose_branch
     backend_image         = var.dockerhub_backend_image
     frontend_image        = var.dockerhub_frontend_image
+    PUBLIC_IP             = ""  # This will be fetched dynamically on EC2
   }))
 }
 

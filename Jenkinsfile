@@ -152,7 +152,7 @@ pipeline {
                         echo '🚀 Triggering deployment on EC2 instance...'
                         
                         // Your EC2 instance ID (permanent - never changes)
-                        def instanceId = env.EC2_INSTANCE_ID ?: 'i-0230831a6bf5c2650'
+                        def instanceId = env.EC2_INSTANCE_ID ?: 'i-0e91a17492dc81172'
                         
                         // Option 1: Use SSM to run deployment script
                         sh """

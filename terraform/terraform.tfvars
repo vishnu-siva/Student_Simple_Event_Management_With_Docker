@@ -6,7 +6,7 @@ project_name = "student-event-management"
 environment  = "dev"
 
 # Instance Configuration
-instance_type = "t3.micro"            # Free tier eligible
+instance_type = "t3.small"            # 2GB RAM - suitable for MySQL + Java backend
 instance_name = "student-event-app"
 key_name = "student-event-key"
 

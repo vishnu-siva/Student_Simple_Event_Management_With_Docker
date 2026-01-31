@@ -19,18 +19,24 @@ function Home() {
   const fetchRecentEvents = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/events/recent`);
-      setRecentEvents(response.data);
+      // Ensure response.data is an array
+      const data = Array.isArray(response.data) ? response.data : [];
+      setRecentEvents(data);
     } catch (error) {
       console.error('Error fetching recent events:', error);
+      setRecentEvents([]);
     }
   };
 
   const fetchApprovedEvents = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/events/approved`);
-      setApprovedEvents(response.data);
+      // Ensure response.data is an array
+      const data = Array.isArray(response.data) ? response.data : [];
+      setApprovedEvents(data);
     } catch (error) {
       console.error('Error fetching approved events:', error);
+      setApprovedEvents([]);
     }
   };
 
@@ -43,9 +49,12 @@ function Home() {
     } else {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/events/search?keyword=${value}`);
-        setRecentEvents(response.data);
+        // Ensure response.data is an array
+        const data = Array.isArray(response.data) ? response.data : [];
+        setRecentEvents(data);
       } catch (error) {
         console.error('Error searching events:', error);
+        setRecentEvents([]);
       }
     }
   };

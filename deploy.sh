@@ -11,21 +11,16 @@ echo "📅 $(date)"
 # Configuration
 COMPOSE_FILE="/home/ubuntu/docker-compose.prod.yml"
 PROJECT_NAME="student-event-management"
+GITHUB_REPO="https://raw.githubusercontent.com/vishnu-siva/Student_Simple_Event_Management_With_Docker/main"
 
-# Check if running on EC2
-if [ ! -f "$COMPOSE_FILE" ]; then
-    echo "❌ Error: $COMPOSE_FILE not found"
-    echo "Creating it from repository..."
-    
-    cd /home/ubuntu
-    if [ ! -d "Student_Simple_Event_Management_With_Docker" ]; then
-        git clone https://github.com/vishnu-siva/Student_Simple_Event_Management_With_Docker.git
-    fi
-    
-    cd Student_Simple_Event_Management_With_Docker
-    git pull origin main
-    cp docker-compose.prod.yml /home/ubuntu/
-    cd /home/ubuntu
+# Download latest docker-compose.prod.yml from GitHub
+echo "📥 Downloading latest docker-compose.prod.yml from GitHub..."
+curl -fsSL "${GITHUB_REPO}/docker-compose.prod.yml" -o "$COMPOSE_FILE"
+if [ $? -eq 0 ]; then
+    echo "✅ Successfully downloaded docker-compose.prod.yml"
+else
+    echo "❌ Failed to download docker-compose.prod.yml from GitHub"
+    exit 1
 fi
 
 # Navigate to deployment directory

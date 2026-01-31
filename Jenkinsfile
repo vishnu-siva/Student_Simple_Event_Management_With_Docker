@@ -178,6 +178,8 @@ pipeline {
                                     --region ${AWS_DEFAULT_REGION} \\
                                     --document-name "AWS-RunShellScript" \\
                                     --parameters 'commands=[
+                                        "sudo -u ubuntu bash -lc '"'"'curl -fsSL https://raw.githubusercontent.com/vishnu-siva/Student_Simple_Event_Management_With_Docker/main/deploy.sh -o /home/ubuntu/deploy.sh'"'"'",
+                                        "sudo -u ubuntu bash -lc '"'"'chmod +x /home/ubuntu/deploy.sh'"'"'",
                                         "sudo -u ubuntu bash /home/ubuntu/deploy.sh"
                                     ]' \\
                                     --comment "Jenkins triggered deployment - Build #${BUILD_NUMBER}" \\

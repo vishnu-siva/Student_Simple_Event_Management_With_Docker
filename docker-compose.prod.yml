@@ -14,6 +14,8 @@ services:
       - /data/mysql:/var/lib/mysql  # EBS volume mounted at /data
     networks:
       - student-event-network
+    mem_limit: 512m
+    memswap_limit: 512m
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pVishnu"]
       timeout: 20s
@@ -34,6 +36,8 @@ services:
       DB_USER: root
       DB_PASSWORD: Vishnu
       SPRING_PROFILES_ACTIVE: prod
+    mem_limit: 768m
+    memswap_limit: 768m
     depends_on:
       mysql:
         condition: service_healthy  # Wait for MySQL to be healthy
@@ -53,6 +57,8 @@ services:
     ports:
       - "80:80"
       - "3000:80"
+    mem_limit: 256m
+    memswap_limit: 256m
     depends_on:
       backend:
         condition: service_healthy  # Wait for Backend to be healthy

@@ -24,7 +24,7 @@ variable "environment" {
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
-  default     = "t2.micro"
+  default     = "t3.small"
 
   validation {
     condition     = can(regex("^t[2-3]\\.", var.instance_type))

@@ -13,7 +13,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/admin")
 @CrossOrigin(origins = {
     "http://localhost:3000",
-    "http://98.95.8.184:3000"
+    "http://localhost",           // ✅ Added: local port 80
+    "http://localhost:80",        // ✅ Added: explicit port 80
+    "http://98.95.8.184:3000",    // Port 3000
+    "http://98.95.8.184",         // ✅ Added: production port 80 (default)
+    "http://98.95.8.184:80"       // ✅ Added: explicit port 80
 })
 public class AdminController {
 

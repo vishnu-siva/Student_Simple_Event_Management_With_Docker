@@ -6,7 +6,7 @@ pipeline {
     }
 
     parameters {
-        booleanParam(name: 'PUSH_IMAGES', defaultValue: false, description: 'Push built images to Docker Hub')
+        booleanParam(name: 'PUSH_IMAGES', defaultValue: true, description: 'Push built images to Docker Hub')
     }
 
     environment {

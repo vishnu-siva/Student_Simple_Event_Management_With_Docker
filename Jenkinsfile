@@ -7,6 +7,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'PUSH_IMAGES', defaultValue: true, description: 'Push built images to Docker Hub')
+        booleanParam(name: 'RUN_TERRAFORM', defaultValue: false, description: 'Apply Terraform changes (optional)')
     }
 
     environment {
@@ -221,6 +222,7 @@ pipeline {
             when {
                 allOf {
                     expression { return params.PUSH_IMAGES }
+                    expression { return params.RUN_TERRAFORM }
                     expression { return env.BRANCH_NAME == null || env.BRANCH_NAME == 'main' }
                 }
             }

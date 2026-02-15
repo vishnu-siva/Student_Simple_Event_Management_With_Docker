@@ -109,7 +109,7 @@ function Home() {
     <div className="home-container">
       <header className="home-header">
         <div className="header-content">
-          <h1 className="logo">Students Event Management System</h1>
+          <h1 className="logo">Student Event Management System</h1>
             <nav className="nav-menu">
               <a href="/">Home</a>
               <a href="/about">About</a>
